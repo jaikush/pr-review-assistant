@@ -25,4 +25,23 @@ public class GitHubService {
 
         return response.getBody(); // this is the diff
     }
+
+    public String postCommentToPR(String owner, String repo, int prNumber, String comment) {
+        String url = String.format("https://api.github.com/repos/%s/%s/issues/%d/comments", owner, repo, prNumber);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(githubToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String requestBody = String.format("{\"body\": \"%s\"}", comment.replace("\"", "\\\"").replace("\n", "\\n"));
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            return "Posted successfully";
+        } catch (Exception e) {
+            return "Error posting comment: " + e.getMessage();
+        }
+    }
 }
